@@ -4,9 +4,6 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
 <title>Fetch — A charity: water Game</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -32,14 +29,16 @@
           <span class="clock-icon">⏱</span>
           <span id="timer">2:00</span>
         </div>
+        <div id="bucket-pill">
+          <span class="bucket-icon">🪣</span>
+          <span id="bucket-count">0/4</span>
+        </div>
       </div>
     </header>
 
-    <!-- ============ MISSION BOX ============ -->
-    <div id="mission-box">
-      <div class="mission-card">
-        <p>I NEED TO BRING TIM 4 BUCKETS OF CLEAN WATER FOR HIS FAMILY!</p>
-      </div>
+    <!-- ============ MISSION BANNER ============ -->
+    <div id="mission-banner">
+      Bring clean water to the families before time runs out!
     </div>
 
     <!-- ============ GAME WORLD ============ -->
@@ -53,10 +52,6 @@
           <div class="cloud cloud3"></div>
           <div class="sun"></div>
         </div>
-
-        <div class="background-layer far-mountains"></div>
-        <div class="background-layer near-mountains"></div>
-        <div class="background-layer hill-layer"></div>
 
         <!-- Distant hills -->
         <div class="hills"></div>
@@ -81,7 +76,6 @@
             <div class="monster-eye right-eye"></div>
             <div class="monster-mouth"></div>
           </div>
-          <div class="monster-dust"></div>
         </div>
 
         <!-- Player -->
@@ -97,23 +91,11 @@
 
         <!-- Family + House (right) -->
         <div id="house" class="entity">
-          <div class="house-dust"></div>
-          <div class="speech-bubble" id="family-speech">SO THIRSTY!</div>
+          <div class="speech-bubble" id="family-speech">So thirsty!</div>
           <div class="house-roof"></div>
-          <div class="house-body">
-            <div class="house-door"></div>
-            <div class="house-window"></div>
-            <div class="dead-faucet"></div>
-          </div>
-          <div id="family" class="family">
-            <div class="family-figure">
-              <span class="family-head"></span>
-              <span class="family-torso"></span>
-              <span class="family-legs"></span>
-              <span class="family-arm left"></span>
-              <span class="family-arm right"></span>
-            </div>
-          </div>
+          <div class="house-body"></div>
+          <div class="house-tap"></div>
+          <div id="family" class="family">🧒</div>
           <div class="prompt-bubble" id="house-prompt">Press E to deliver</div>
         </div>
 
@@ -122,18 +104,9 @@
 
     <!-- ============ EDUCATIONAL FACT BANNER ============ -->
     <footer id="fact-banner">
-      <div class="bucket-panel">
-        <span class="bucket-icon">🪣</span>
-        <div class="bucket-info">
-          <div class="bucket-count-large"><span id="bucket-count">0</span><span class="bucket-divider">/</span><span class="bucket-total">4</span></div>
-          <div class="progress-bar"><div class="progress-fill" id="bucket-progress"></div></div>
-        </div>
-      </div>
-      <div class="fact-panel">
-        <div class="fact-heading"><span class="fact-drop">💧</span><span>Water Fact</span></div>
-        <p id="fact-text">703 million people lack basic drinking water access.</p>
-        <a href="https://www.charitywater.org" target="_blank" rel="noopener" id="learn-more-btn">Learn More</a>
-      </div>
+      <span class="fact-drop">💧</span>
+      <p id="fact-text">703 million people lack basic drinking water access.</p>
+      <a href="https://www.charitywater.org" target="_blank" rel="noopener" id="learn-more-btn">Learn More</a>
     </footer>
 
     <!-- ============ MOBILE TOUCH CONTROLS ============ -->

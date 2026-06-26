@@ -52,7 +52,6 @@
     family: document.getElementById("family"),
     familySpeech: document.getElementById("family-speech"),
     factText: document.getElementById("fact-text"),
-    bucketProgress: document.getElementById("bucket-progress"),
     screenFlash: document.getElementById("screen-flash"),
     startOverlay: document.getElementById("start-overlay"),
     winOverlay: document.getElementById("win-overlay"),
@@ -358,10 +357,6 @@
   /* ================= HUD ================= */
   function updateHUD() {
     dom.bucketCount.textContent = `${state.bucketsDelivered}/${TOTAL_BUCKETS}`;
-    const fillPercent = Math.min(100, (state.bucketsDelivered / TOTAL_BUCKETS) * 100);
-    if (dom.bucketProgress) {
-      dom.bucketProgress.style.width = `${fillPercent}%`;
-    }
     dom.bucketCount.classList.remove("bump");
     void dom.bucketCount.offsetWidth;
     dom.bucketCount.classList.add("bump");

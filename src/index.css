@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+@theme {
+  --font-retro: "VT323", monospace;
+  --font-press-start: "Press Start 2P", system-ui, sans-serif;
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+/* Custom retro styling classes */
+.pixel-art {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+@layer utilities {
+  .text-shadow-custom {
+    text-shadow: 2px 2px 0px #000000;
+  }
+  .text-shadow-purple {
+    text-shadow: 3px 3px 0px #4c1d95, -1px -1px 0px #ffffff, 1px -1px 0px #ffffff, -1px 1px 0px #ffffff, 1px 1px 0px #ffffff;
+  }
+}
+
+/* Base resets */
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font-sans);
+}
+
+/* Keyframe animations for HUD */
+@keyframes pulse-slow {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 2s infinite ease-in-out;
+}

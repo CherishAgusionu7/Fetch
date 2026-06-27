@@ -1,0 +1,6 @@
+{
+  "name": "FETCH",
+  "description": "A polished 2D pixel-art platformer about water collection and the global water crisis, inspired by charity: water.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { WATER_FACTS } from '../constants';
 import { gameAudio } from '../audio';
 
-export default function EducationalBanner() {
+export default function EducationalBanner({ resetSignal }: { resetSignal: number }) {
   const [factIndex, setFactIndex] = useState(0);
 
   useEffect(() => {
@@ -19,6 +19,10 @@ export default function EducationalBanner() {
 
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    setFactIndex(0);
+  }, [resetSignal]);
 
   const handleLearnMore = () => {
     gameAudio.playClick();

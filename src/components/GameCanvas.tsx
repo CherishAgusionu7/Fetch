@@ -45,6 +45,7 @@ interface GameCanvasProps {
     jump: boolean;
     action: boolean;
   };
+  resetSignal: number;
 }
 
 export default function GameCanvas({
@@ -52,8 +53,19 @@ export default function GameCanvas({
   setScreen,
   setHudStats,
   mobileKeyStates,
+  resetSignal,
 }: GameCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const pendingTimeouts = useRef<number[]>([]);
+
+  const clearPendingTimeouts = () => {
+    pendingTimeouts.current.forEach((timeoutId) => clearTimeout(timeoutId));
+    pendingTimeouts.current = [];
+  };
+
+  const registerTimeout = (timeoutId: number) => {
+    pendingTimeouts.current.push(timeoutId);
+  };
   
   // Game state reference for loop to access latest state without React closure traps
   const stateRef = useRef<GameState>({
@@ -796,12 +808,12 @@ export default function GameCanvas({
 
               // Victory check
               if (s.stats.familiesHelped === s.stats.totalFamilies) {
-                setTimeout(() => {
+                registerTimeout(window.setTimeout(() => {
                   setScreen('victory');
                   gameAudio.playVictory();
                   // massive firework display
                   createVictoryFireworks();
-                }, 1000);
+                }, 1000));
               }
             } else {
               // Help prompt dialog
@@ -951,7 +963,7 @@ export default function GameCanvas({
       
       // Schedule fireworks every half second
       for (let f = 0; f < 8; f++) {
-        setTimeout(() => {
+        registerTimeout(window.setTimeout(() => {
           if (stateRef.current.screen !== 'victory') return;
           const fx = 200 + Math.random() * (logicalWidth - 400) + cameraX.current;
           const fy = 100 + Math.random() * 180;
@@ -977,7 +989,7 @@ export default function GameCanvas({
             });
           }
           gameAudio.playVictory(); // play retro bell sound
-        }, f * 450);
+        }, f * 450));
       }
     };
 
@@ -2096,6 +2108,13 @@ export default function GameCanvas({
 
   // Restart trigger handler
   useEffect(() => {
+    if (resetSignal > 0) {
+      clearPendingTimeouts();
+      initLevel();
+    }
+  }, [resetSignal]);
+
+  useEffect(() => {
     if (screen === 'playing') {
       initLevel();
       // Start ambient synthesizers
@@ -2104,6 +2123,10 @@ export default function GameCanvas({
       gameAudio.stopAmbient();
     }
   }, [screen]);
+
+  useEffect(() => {
+    return () => clearPendingTimeouts();
+  }, []);
 
   return (
     <div className="relative w-full h-full flex items-center justify-center bg-[#0ea5e9]/10">

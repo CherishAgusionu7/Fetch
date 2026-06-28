@@ -17,7 +17,7 @@ interface GameHUDProps {
   waterCarried: number;
   isMuted: boolean;
   onToggleMute: () => void;
-  onRestart: () => void;
+  onReset: () => void;
   lastHurtTime: number; // to trigger heart animation
 }
 
@@ -31,7 +31,7 @@ export default function GameHUD({
   waterCarried,
   isMuted,
   onToggleMute,
-  onRestart,
+  onReset,
   lastHurtTime,
 }: GameHUDProps) {
   // Format timer as m:ss
@@ -179,14 +179,26 @@ export default function GameHUD({
             </span>
           </div>
 
-          {/* Sound Mute button */}
-          <button
-            onClick={onToggleMute}
-            className="bg-slate-800/95 hover:bg-slate-700/95 border-2 border-slate-600 active:border-white rounded-lg p-2 text-white shadow-md active:translate-y-[2px] transition-all cursor-pointer"
-            style={{ boxShadow: '2px 2px 0px rgba(0,0,0,0.3)' }}
-          >
-            {isMuted ? <VolumeX className="w-4 h-4 text-red-400" /> : <Volume2 className="w-4 h-4 text-green-400" />}
-          </button>
+          <div className="flex items-center gap-2">
+            <motion.button
+              onClick={onReset}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.96, y: 1 }}
+              className="bg-[#0ea5e9] hover:bg-[#22c7ff] border-2 border-[#0369a1] rounded-lg px-3 py-2 text-[10px] uppercase tracking-[0.2em] text-white font-press-start shadow-lg active:border-white transition-all cursor-pointer"
+              style={{ boxShadow: '3px 3px 0px rgba(0,0,0,0.35)' }}
+              aria-label="Reset Game"
+            >
+              RESET
+            </motion.button>
+
+            <button
+              onClick={onToggleMute}
+              className="bg-slate-800/95 hover:bg-slate-700/95 border-2 border-slate-600 active:border-white rounded-lg p-2 text-white shadow-md active:translate-y-[2px] transition-all cursor-pointer"
+              style={{ boxShadow: '2px 2px 0px rgba(0,0,0,0.3)' }}
+            >
+              {isMuted ? <VolumeX className="w-4 h-4 text-red-400" /> : <Volume2 className="w-4 h-4 text-green-400" />}
+            </button>
+          </div>
         </div>
       </div>
 

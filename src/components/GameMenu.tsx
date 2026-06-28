@@ -135,7 +135,7 @@ export default function GameMenu({
             </p>
             <p className="font-semibold text-emerald-400 font-press-start text-xxs uppercase">HOW TO PLAY:</p>
             <ul className="list-disc pl-5 flex flex-col gap-1.5 text-slate-300">
-              <li>Walk far left to the <strong>Clean Water Tank</strong> and press <kbd className="px-1 bg-slate-800 text-white font-bold rounded">E</kbd> or tap <kbd className="px-1 bg-slate-800 text-white font-bold rounded">E icon</kbd> to refill.</li>
+              <li>Walk far left to the <strong>Clean Water Tank</strong> and press <kbd className="px-1 bg-slate-800 text-white font-bold rounded">E</kbd> or tap <kbd className="px-1 bg-slate-800 text-white font-bold rounded">E icon</kbd> to refill. And Pro tip, you can double-tap the space bar to double jump!</li>
               <li>Carry the bucket carefully. Watch it bounce on your head!</li>
               <li>Dodge mud puddles, poisonous creatures, spikes, and falling boulders.</li>
               <li>Deliver water to each of the <strong>4 families</strong> by walking to them and pressing <kbd className="px-1 bg-slate-800 text-white font-bold rounded">E</kbd>!</li>

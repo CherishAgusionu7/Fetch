@@ -35,6 +35,7 @@ export default function App() {
     jump: false,
     action: false,
   });
+  const [resetSignal, setResetSignal] = useState(0);
 
   // Check if device supports touch input
   useEffect(() => {
@@ -67,9 +68,16 @@ export default function App() {
     setScreen('playing');
   };
 
-  const restartGame = () => {
+  const resetGame = () => {
     handleUserInteraction();
-    setScreen('playing');
+    setResetSignal((prev) => prev + 1);
+    if (screen !== 'playing') {
+      setScreen('playing');
+    }
+  };
+
+  const restartGame = () => {
+    resetGame();
   };
 
   const goToMenu = () => {
@@ -125,6 +133,7 @@ export default function App() {
             setScreen={setScreen}
             setHudStats={setHudStats}
             mobileKeyStates={mobileKeyStates}
+            resetSignal={resetSignal}
           />
 
           {/* 2. Overlaid Active Console HUD */}
@@ -139,7 +148,7 @@ export default function App() {
               waterCarried={hudStats.waterCarried}
               isMuted={isMuted}
               onToggleMute={toggleMute}
-              onRestart={restartGame}
+              onReset={resetGame}
               lastHurtTime={hudStats.lastHurtTime}
             />
           )}
@@ -172,7 +181,7 @@ export default function App() {
         />
 
         {/* Right Side: Educational Scrolling Fact widget */}
-        <EducationalBanner />
+        <EducationalBanner resetSignal={resetSignal} />
       </div>
 
     </div>

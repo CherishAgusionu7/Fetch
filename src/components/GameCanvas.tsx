@@ -66,6 +66,28 @@ export default function GameCanvas({
   const registerTimeout = (timeoutId: number) => {
     pendingTimeouts.current.push(timeoutId);
   };
+
+  const checkpointRef = useRef<{
+    familyId: number | null;
+    player: PlayerState;
+    enemies: EnemyState[];
+    projectiles: ProjectileState[];
+    platforms: PlatformState[];
+    obstacles: ObstacleState[];
+    families: FamilyState[];
+    waterTank: WaterTankState;
+    stats: GameState['stats'];
+    cameraX: number;
+  } | null>(null);
+  const checkpointFlashTimer = useRef<number>(0);
+
+  const cloneValue = <T,>(value: T): T => {
+    if (typeof structuredClone === 'function') {
+      return structuredClone(value);
+    }
+
+    return JSON.parse(JSON.stringify(value)) as T;
+  };
   
   // Game state reference for loop to access latest state without React closure traps
   const stateRef = useRef<GameState>({
@@ -123,6 +145,65 @@ export default function GameCanvas({
   // Camera horizontal offset
   const cameraX = useRef<number>(0);
   const cameraShake = useRef<number>(0);
+
+  const saveCheckpoint = (familyId: number | null) => {
+    const s = stateRef.current;
+    checkpointRef.current = {
+      familyId,
+      player: cloneValue(s.player),
+      enemies: cloneValue(s.enemies),
+      projectiles: cloneValue(s.projectiles),
+      platforms: cloneValue(s.platforms),
+      obstacles: cloneValue(s.obstacles),
+      families: cloneValue(s.families),
+      waterTank: cloneValue(s.waterTank),
+      stats: cloneValue(s.stats),
+      cameraX: cameraX.current,
+    };
+    checkpointFlashTimer.current = familyId === null ? 0 : 90;
+  };
+
+  const restoreCheckpoint = () => {
+    const checkpoint = checkpointRef.current;
+    if (!checkpoint) {
+      initLevel();
+      return;
+    }
+
+    const s = stateRef.current;
+    s.player = {
+      ...cloneValue(checkpoint.player),
+      lives: 3,
+      maxLives: 3,
+      isHurt: false,
+      hurtTimer: 0,
+      invulnerableTimer: 60,
+      victoryTimer: 0,
+      vx: 0,
+      vy: 0,
+      isGrounded: true,
+      doubleJumpsLeft: 1,
+    };
+    s.enemies = cloneValue(checkpoint.enemies);
+    s.projectiles = cloneValue(checkpoint.projectiles);
+    s.platforms = cloneValue(checkpoint.platforms);
+    s.obstacles = cloneValue(checkpoint.obstacles);
+    s.families = cloneValue(checkpoint.families);
+    s.waterTank = cloneValue(checkpoint.waterTank);
+    s.stats = {
+      ...cloneValue(checkpoint.stats),
+      isSoundMuted: gameAudio.isMuted(),
+    };
+
+    cameraX.current = checkpoint.cameraX;
+    cameraShake.current = 0;
+    secondAccumulator.current = 0;
+    prevJumpPressed.current = false;
+    keysPressed.current['w'] = false;
+    keysPressed.current['arrowup'] = false;
+    keysPressed.current[' '] = false;
+    keysPressed.current['e'] = false;
+  };
 
   // Logical game resolution (16:9)
   const logicalWidth = 1000;
@@ -209,6 +290,9 @@ export default function GameCanvas({
     cameraX.current = 0;
     cameraShake.current = 0;
     secondAccumulator.current = 0;
+    checkpointRef.current = null;
+    checkpointFlashTimer.current = 0;
+    saveCheckpoint(null);
   };
 
   // Keyboard Event Binding
@@ -279,9 +363,12 @@ export default function GameCanvas({
         return;
       }
       if (s.player.lives <= 0) {
-        setScreen('gameover');
-        gameAudio.playGameOver();
+        restoreCheckpoint();
         return;
+      }
+
+      if (checkpointFlashTimer.current > 0) {
+        checkpointFlashTimer.current--;
       }
 
       // Update seconds
@@ -441,12 +528,7 @@ export default function GameCanvas({
 
       // Bottom out-of-bounds check (respawn on starting or near platform)
       if (p.y > LEVEL_HEIGHT) {
-        damagePlayer();
-        // Respawn player
-        p.x = Math.max(150, p.x - 200);
-        p.y = 100;
-        p.vx = 0;
-        p.vy = 0;
+        damagePlayer(true);
       }
 
       // Platform Collision checks
@@ -806,6 +888,12 @@ export default function GameCanvas({
               createSparkleExplosion(fam.x + fam.width / 2, fam.y + fam.height / 2, 20);
               spawnFloatingText(fam.x + 20, fam.y - 20, "DELIVERED! 🎉", "#4ade80");
 
+              if (s.stats.familiesHelped < s.stats.totalFamilies) {
+                saveCheckpoint(fam.id);
+                gameAudio.playCheckpoint();
+                spawnFloatingText(fam.x + fam.width / 2, fam.y - 150, "CHECKPOINT REACHED!", "#22d3ee");
+              }
+
               // Victory check
               if (s.stats.familiesHelped === s.stats.totalFamilies) {
                 registerTimeout(window.setTimeout(() => {
@@ -827,10 +915,10 @@ export default function GameCanvas({
     };
 
     // DMG PLAYER HANDLER
-    const damagePlayer = () => {
+    const damagePlayer = (forceRespawn = false) => {
       const s = stateRef.current;
       const p = s.player;
-      if (p.invulnerableTimer > 0) return;
+      if (p.invulnerableTimer > 0 && !forceRespawn) return;
 
       p.lives--;
       p.hurtTimer = 25; // 25 frames of red flash
@@ -841,6 +929,16 @@ export default function GameCanvas({
       
       cameraShake.current = 15; // shake camera!
       gameAudio.playHurt();
+
+      if (forceRespawn) {
+        restoreCheckpoint();
+        return;
+      }
+
+      if (p.lives <= 0) {
+        restoreCheckpoint();
+        return;
+      }
 
       // Spill a bit of water or splash it!
       if (p.hasWater) {
@@ -1524,6 +1622,36 @@ export default function GameCanvas({
       // Faucet pipe
       c.fillRect(f.x + f.width + 10, f.y - 25, 6, 25);
       c.fillRect(f.x + f.width, f.y - 25, 12, 6);
+
+      if (checkpointRef.current?.familyId === f.id) {
+        const checkpointPulse = checkpointFlashTimer.current > 0 ? Math.sin(frameCounter.current * 0.45) * 2.5 : 0;
+        const markerX = f.x + f.width + 28;
+        const markerY = f.y - 98;
+
+        c.save();
+        c.shadowColor = 'rgba(34, 211, 238, 0.9)';
+        c.shadowBlur = checkpointFlashTimer.current > 0 ? 18 : 10;
+        c.strokeStyle = '#67e8f9';
+        c.fillStyle = '#22d3ee';
+        c.lineWidth = 4;
+
+        c.beginPath();
+        c.moveTo(markerX, markerY + 20 + checkpointPulse);
+        c.lineTo(markerX, markerY + 58);
+        c.stroke();
+
+        c.fillRect(markerX - 3, markerY + 16 + checkpointPulse, 6, 8);
+        c.beginPath();
+        c.moveTo(markerX, markerY + 20 + checkpointPulse);
+        c.lineTo(markerX + 24, markerY + 30 + checkpointPulse);
+        c.lineTo(markerX, markerY + 40 + checkpointPulse);
+        c.closePath();
+        c.fill();
+
+        c.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        c.fillRect(markerX + 8, markerY + 28 + checkpointPulse, 4, 4);
+        c.restore();
+      }
       
       // Dripping water droplets
       const faucetTime = (frameCounter.current) % 30;

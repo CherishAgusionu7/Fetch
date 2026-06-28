@@ -529,6 +529,7 @@ export default function GameCanvas({
       // Bottom out-of-bounds check (respawn on starting or near platform)
       if (p.y > LEVEL_HEIGHT) {
         damagePlayer(true);
+        return;
       }
 
       // Platform Collision checks

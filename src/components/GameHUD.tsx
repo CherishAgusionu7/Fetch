@@ -65,10 +65,11 @@ export default function GameHUD({
     <div className="absolute inset-0 pointer-events-none select-none z-10 p-4 md:p-6 flex flex-col justify-between">
       
       {/* HEADER ROW */}
-      <div className="w-full flex flex-row justify-between items-start">
+      <div className="w-full flex flex-row justify-between items-start gap-3 md:gap-4">
         
-        {/* TOP LEFT: Hearts (Lives) */}
-        <div className="flex flex-row items-center gap-1.5 pointer-events-auto">
+        {/* TOP LEFT: Hearts (Lives) + Deliveries Tracker */}
+        <div className="flex flex-col items-start gap-1.5 md:gap-2 pointer-events-auto">
+          <div className="flex flex-row items-center gap-1.5">
             {Array.from({ length: maxLives }).map((_, i) => {
               const isFilled = i < lives;
               return (
@@ -154,6 +155,48 @@ export default function GameHUD({
                 </AnimatePresence>
               );
             })}
+          </div>
+
+          <div
+            className="bg-[#2e1d11] border-4 border-[#614126] rounded-xl p-2 px-3 shadow-xl flex flex-row items-center gap-2.5 relative z-10 pointer-events-auto max-w-[14rem] md:max-w-[15rem]"
+            style={{ boxShadow: '5px 5px 0px rgba(0,0,0,0.5)' }}
+          >
+            <div className="relative shrink-0">
+              <svg
+                width="30"
+                height="30"
+                viewBox="0 0 16 16"
+                className="pixel-art filter drop-shadow-[1px_1px_0px_rgba(0,0,0,0.8)]"
+              >
+                <path d="M2 3h12v1H2zm1 1h10v1H3zm0 1h10v8H3zm1 8h8v1H4zm-1-8h1v8H3zm9 0h1v8h-1z" fill="#6b46c1" />
+                <path d="M2 6h12v1H2zm1 4h10v1H3z" fill="#a78bfa" />
+                {hasWater && <path d="M4 5h8v4H4z" fill="#0284c7" className="animate-pulse" />}
+              </svg>
+              {hasWater && (
+                <span className="absolute -top-1.5 -right-1 text-[8px] bg-sky-500 border border-white rounded-full text-white px-1 font-bold animate-bounce leading-none py-0.5">
+                  FULL
+                </span>
+              )}
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-row justify-between items-end mb-1 font-press-start text-[8px] md:text-[9px]">
+                <span className="text-amber-100 font-bold tracking-tight">DELIVERIES</span>
+                <span className="text-sky-400 font-bold font-press-start">
+                  {familiesHelped} / {totalFamilies}
+                </span>
+              </div>
+
+              <div className="h-3.5 bg-slate-950 border-2 border-slate-800 rounded-md overflow-hidden p-0.5">
+                <motion.div
+                  className="h-full bg-gradient-to-r from-green-500 to-emerald-400 rounded-sm"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${(familiesHelped / totalFamilies) * 100}%` }}
+                  transition={{ type: 'spring', stiffness: 80, damping: 15 }}
+                />
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* TOP CENTER: FETCH Logo */}
@@ -221,59 +264,9 @@ export default function GameHUD({
       {/* FOOTER ROW */}
       <div className="w-full flex flex-col md:flex-row justify-between items-center gap-4 mt-auto">
         <div className="w-1 h-1 pointer-events-none"></div>
-        
-        {/* BOTTOM CENTER: Bucket Progress Bar (Families helped indicator) */}
-        <div 
-          className="bg-[#2e1d11] border-4 border-[#614126] rounded-xl p-2.5 px-4 shadow-xl flex flex-row items-center gap-3 relative z-10 pointer-events-auto"
-          style={{ boxShadow: '5px 5px 0px rgba(0,0,0,0.5)' }}
-        >
-          {/* Bucket Outline SVG */}
-          <div className="relative">
-            <svg
-              width="36"
-              height="36"
-              viewBox="0 0 16 16"
-              className="pixel-art filter drop-shadow-[1px_1px_0px_rgba(0,0,0,0.8)]"
-            >
-              {/* Wooden bucket path */}
-              <path d="M2 3h12v1H2zm1 1h10v1H3zm0 1h10v8H3zm1 8h8v1H4zm-1-8h1v8H3zm9 0h1v8h-1z" fill="#6b46c1" />
-              {/* Iron ring details */}
-              <path d="M2 6h12v1H2zm1 4h10v1H3z" fill="#a78bfa" />
-              {/* Water Inside Bucket */}
-              {hasWater && (
-                <path d="M4 5h8v4H4z" fill="#0284c7" className="animate-pulse" />
-              )}
-            </svg>
-            {hasWater && (
-              <span className="absolute -top-1.5 -right-1 text-[8px] bg-sky-500 border border-white rounded-full text-white px-1 font-bold animate-bounce leading-none py-0.5">
-                FULL
-              </span>
-            )}
-          </div>
-
-          <div className="flex flex-col">
-            <div className="flex flex-row justify-between items-end mb-1 font-press-start text-[9px] md:text-[10px]">
-              <span className="text-amber-100 font-bold tracking-tight">DELIVERIES</span>
-              <span className="text-sky-400 font-bold font-press-start">
-                {familiesHelped} / {totalFamilies}
-              </span>
-            </div>
-            
-            {/* Custom Green Progress Bar */}
-            <div className="w-44 h-4 bg-slate-950 border-2 border-slate-800 rounded-md overflow-hidden p-0.5">
-              <motion.div
-                className="h-full bg-gradient-to-r from-green-500 to-emerald-400 rounded-sm"
-                initial={{ width: 0 }}
-                animate={{ width: `${(familiesHelped / totalFamilies) * 100}%` }}
-                transition={{ type: 'spring', stiffness: 80, damping: 15 }}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* BOTTOM RIGHT: Handled by EducationalBanner outside in App.tsx layout */}
+        {/* Bottom center intentionally left empty to keep the HUD cleaner. */}
         <div className="w-1 h-1 pointer-events-none"></div>
-        
+        <div className="w-1 h-1 pointer-events-none"></div>
       </div>
 
     </div>

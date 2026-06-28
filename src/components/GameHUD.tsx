@@ -41,7 +41,7 @@ export default function GameHUD({
     return `${m}:${s < 10 ? '0' : ''}${s}`;
   };
 
-  // Determine current active mission prompt
+  // Determine current active mission prompt!!
   const getMissionPrompt = () => {
     if (familiesHelped === totalFamilies) {
       return "ALL FAMILIES HELPED! VICTORY!";
